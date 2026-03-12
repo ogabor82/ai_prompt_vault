@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'models/prompt.dart';
+import 'widgets/prompt_card.dart';
 
 void main() {
   runApp(const MyApp());
@@ -55,19 +56,7 @@ class PromptListScreen extends StatelessWidget {
         itemCount: prompts.length,
         itemBuilder: (context, index) {
           final prompt = prompts[index];
-
-          return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: ListTile(
-              leading: Icon(
-                prompt.isFavorite ? Icons.star : Icons.chat_bubble_outline,
-                color: prompt.isFavorite ? Colors.amber : Colors.grey,
-              ),
-              title: Text(prompt.title),
-              subtitle: Text('${prompt.category} • ${prompt.content}'),
-              trailing: const Icon(Icons.chevron_right),
-            ),
-          );
+          return PromptCard(prompt: prompt);
         },
       ),
     );
