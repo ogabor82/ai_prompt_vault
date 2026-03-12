@@ -14,12 +14,19 @@ class PromptCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: ListTile(
+        contentPadding: const EdgeInsets.all(12),
         leading: Icon(
           prompt.isFavorite ? Icons.star : Icons.chat_bubble_outline,
           color: prompt.isFavorite ? Colors.amber : Colors.grey,
         ),
-        title: Text(prompt.title),
-        subtitle: Text('${prompt.category} • ${prompt.content}'),
+        title: Text(
+          prompt.title,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 6),
+          child: Text('${prompt.category} • ${prompt.content}'),
+        ),
         trailing: const Icon(Icons.chevron_right),
       ),
     );
