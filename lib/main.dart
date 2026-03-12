@@ -21,10 +21,15 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class PromptListScreen extends StatelessWidget {
+class PromptListScreen extends StatefulWidget {
   const PromptListScreen({super.key});
 
-  final List<Prompt> prompts = const [
+  @override
+  State<PromptListScreen> createState() => _PromptListScreenState();
+}
+
+class _PromptListScreenState extends State<PromptListScreen> {
+  List<Prompt> prompts = const [
     Prompt(
       id: '1',
       title: 'Blog post intro generator',
@@ -46,6 +51,17 @@ class PromptListScreen extends StatelessWidget {
     ),
   ];
 
+  void toggleFavorite(String promptId) {
+    setState(() {
+      prompts = prompts.map<Prompt>((prompt) {
+        if (prompt.id == promptId) {
+          return prompt.copyWith(isFavorite: !prompt.isFavorite);
+        }
+        return prompt;
+      }).toList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,7 +72,13 @@ class PromptListScreen extends StatelessWidget {
         itemCount: prompts.length,
         itemBuilder: (context, index) {
           final prompt = prompts[index];
-          return PromptCard(prompt: prompt);
+
+          return PromptCard(
+            prompt: prompt,
+            onFavoriteToggle: () {
+              toggleFavorite(prompt.id);
+            },
+          );
         },
       ),
     );

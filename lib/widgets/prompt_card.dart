@@ -3,10 +3,12 @@ import '../models/prompt.dart';
 
 class PromptCard extends StatelessWidget {
   final Prompt prompt;
+  final VoidCallback onFavoriteToggle;
 
   const PromptCard({
     super.key,
     required this.prompt,
+    required this.onFavoriteToggle,
   });
 
   @override
@@ -27,7 +29,13 @@ class PromptCard extends StatelessWidget {
           padding: const EdgeInsets.only(top: 6),
           child: Text('${prompt.category} • ${prompt.content}'),
         ),
-        trailing: const Icon(Icons.chevron_right),
+        trailing: IconButton(
+          icon: Icon(
+            prompt.isFavorite ? Icons.star : Icons.star_border,
+            color: prompt.isFavorite ? Colors.amber : Colors.grey,
+          ),
+          onPressed: onFavoriteToggle,
+        ),
       ),
     );
   }
