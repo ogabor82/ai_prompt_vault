@@ -32,8 +32,10 @@ class PromptListScreen extends StatefulWidget {
 
 class _PromptListScreenState extends State<PromptListScreen> {
   final StorageService _storageService = StorageService();
+  final TextEditingController _searchController = TextEditingController();
 
   List<Prompt> prompts = [];
+  String searchQuery = '';
 
   final List<Prompt> defaultPrompts = const [
     Prompt(
@@ -61,6 +63,12 @@ class _PromptListScreenState extends State<PromptListScreen> {
   void initState() {
     super.initState();
     loadPrompts();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> loadPrompts() async {
@@ -105,26 +113,81 @@ class _PromptListScreenState extends State<PromptListScreen> {
     }
   }
 
+  void updateSearchQuery(String value) {
+    setState(() {
+      searchQuery = value.trim().toLowerCase();
+    });
+  }
+
+  List<Prompt> get filteredPrompts {
+    if (searchQuery.isEmpty) {
+      return prompts;
+    }
+
+    return prompts.where((prompt) {
+      final title = prompt.title.toLowerCase();
+      final category = prompt.category.toLowerCase();
+      final content = prompt.content.toLowerCase();
+
+      return title.contains(searchQuery) ||
+          category.contains(searchQuery) ||
+          content.contains(searchQuery);
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final visiblePrompts = filteredPrompts;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('AI Prompt Vault'),
       ),
       body: prompts.isEmpty
           ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: prompts.length,
-              itemBuilder: (context, index) {
-                final prompt = prompts[index];
+          : Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: updateSearchQuery,
+                    decoration: InputDecoration(
+                      hintText: 'Search prompts...',
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: searchQuery.isNotEmpty
+                          ? IconButton(
+                              onPressed: () {
+                                _searchController.clear();
+                                updateSearchQuery('');
+                              },
+                              icon: const Icon(Icons.clear),
+                            )
+                          : null,
+                      border: const OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: visiblePrompts.isEmpty
+                      ? const Center(
+                          child: Text('No prompts match your search.'),
+                        )
+                      : ListView.builder(
+                          itemCount: visiblePrompts.length,
+                          itemBuilder: (context, index) {
+                            final prompt = visiblePrompts[index];
 
-                return PromptCard(
-                  prompt: prompt,
-                  onFavoriteToggle: () {
-                    toggleFavorite(prompt.id);
-                  },
-                );
-              },
+                            return PromptCard(
+                              prompt: prompt,
+                              onFavoriteToggle: () {
+                                toggleFavorite(prompt.id);
+                              },
+                            );
+                          },
+                        ),
+                ),
+              ],
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: openAddPromptScreen,
