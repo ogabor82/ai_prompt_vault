@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'models/prompt.dart';
 import 'widgets/prompt_card.dart';
+import 'screens/add_prompt_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -62,6 +63,21 @@ class _PromptListScreenState extends State<PromptListScreen> {
     });
   }
 
+  Future<void> openAddPromptScreen() async {
+    final newPrompt = await Navigator.push<Prompt>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const AddPromptScreen(),
+      ),
+    );
+
+    if (newPrompt != null) {
+      setState(() {
+        prompts = [newPrompt, ...prompts];
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,6 +96,10 @@ class _PromptListScreenState extends State<PromptListScreen> {
             },
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: openAddPromptScreen,
+        child: const Icon(Icons.add),
       ),
     );
   }
