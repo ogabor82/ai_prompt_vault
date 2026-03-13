@@ -28,4 +28,24 @@ class Prompt {
       isFavorite: isFavorite ?? this.isFavorite,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'content': content,
+      'category': category,
+      'isFavorite': isFavorite,
+    };
+  }
+
+  factory Prompt.fromJson(Map<String, dynamic> json) {
+    return Prompt(
+      id: json['id'] as String,
+      title: json['title'] as String,
+      content: json['content'] as String,
+      category: json['category'] as String,
+      isFavorite: json['isFavorite'] as bool? ?? false,
+    );
+  }
 }

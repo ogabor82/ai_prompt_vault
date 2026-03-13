@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'models/prompt.dart';
 import 'widgets/prompt_card.dart';
 import 'screens/add_prompt_screen.dart';
+import 'services/storage_service.dart';
 
 void main() {
   runApp(const MyApp());
@@ -30,7 +31,11 @@ class PromptListScreen extends StatefulWidget {
 }
 
 class _PromptListScreenState extends State<PromptListScreen> {
-  List<Prompt> prompts = const [
+  final StorageService _storageService = StorageService();
+
+  List<Prompt> prompts = [];
+
+  final List<Prompt> defaultPrompts = const [
     Prompt(
       id: '1',
       title: 'Blog post intro generator',
@@ -52,6 +57,24 @@ class _PromptListScreenState extends State<PromptListScreen> {
     ),
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    loadPrompts();
+  }
+
+  Future<void> loadPrompts() async {
+    final savedPrompts = await _storageService.loadPrompts();
+
+    setState(() {
+      prompts = savedPrompts.isNotEmpty ? savedPrompts : defaultPrompts;
+    });
+  }
+
+  Future<void> savePrompts() async {
+    await _storageService.savePrompts(prompts);
+  }
+
   void toggleFavorite(String promptId) {
     setState(() {
       prompts = prompts.map<Prompt>((prompt) {
@@ -61,6 +84,8 @@ class _PromptListScreenState extends State<PromptListScreen> {
         return prompt;
       }).toList();
     });
+
+    savePrompts();
   }
 
   Future<void> openAddPromptScreen() async {
@@ -75,6 +100,8 @@ class _PromptListScreenState extends State<PromptListScreen> {
       setState(() {
         prompts = [newPrompt, ...prompts];
       });
+
+      savePrompts();
     }
   }
 
@@ -84,19 +111,21 @@ class _PromptListScreenState extends State<PromptListScreen> {
       appBar: AppBar(
         title: const Text('AI Prompt Vault'),
       ),
-      body: ListView.builder(
-        itemCount: prompts.length,
-        itemBuilder: (context, index) {
-          final prompt = prompts[index];
+      body: prompts.isEmpty
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              itemCount: prompts.length,
+              itemBuilder: (context, index) {
+                final prompt = prompts[index];
 
-          return PromptCard(
-            prompt: prompt,
-            onFavoriteToggle: () {
-              toggleFavorite(prompt.id);
-            },
-          );
-        },
-      ),
+                return PromptCard(
+                  prompt: prompt,
+                  onFavoriteToggle: () {
+                    toggleFavorite(prompt.id);
+                  },
+                );
+              },
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: openAddPromptScreen,
         child: const Icon(Icons.add),
