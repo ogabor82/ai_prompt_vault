@@ -4,11 +4,13 @@ import '../models/prompt.dart';
 class PromptCard extends StatelessWidget {
   final Prompt prompt;
   final VoidCallback onFavoriteToggle;
+  final VoidCallback onTap;
 
   const PromptCard({
     super.key,
     required this.prompt,
     required this.onFavoriteToggle,
+    required this.onTap,
   });
 
   @override
@@ -16,6 +18,7 @@ class PromptCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: ListTile(
+        onTap: onTap,
         contentPadding: const EdgeInsets.all(12),
         leading: Icon(
           prompt.isFavorite ? Icons.star : Icons.chat_bubble_outline,

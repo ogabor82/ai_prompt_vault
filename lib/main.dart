@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'models/prompt.dart';
 import 'widgets/prompt_card.dart';
 import 'screens/add_prompt_screen.dart';
+import 'screens/prompt_detail_screen.dart';
 import 'services/storage_service.dart';
 
 void main() {
@@ -113,6 +114,23 @@ class _PromptListScreenState extends State<PromptListScreen> {
     }
   }
 
+  Future<void> openPromptDetailScreen(Prompt prompt) async {
+    final shouldDelete = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PromptDetailScreen(prompt: prompt),
+      ),
+    );
+
+    if (shouldDelete == true) {
+      setState(() {
+        prompts = prompts.where((item) => item.id != prompt.id).toList();
+      });
+
+      savePrompts();
+    }
+  }
+
   void updateSearchQuery(String value) {
     setState(() {
       searchQuery = value.trim().toLowerCase();
@@ -182,6 +200,9 @@ class _PromptListScreenState extends State<PromptListScreen> {
                               prompt: prompt,
                               onFavoriteToggle: () {
                                 toggleFavorite(prompt.id);
+                              },
+                              onTap: () {
+                                openPromptDetailScreen(prompt);
                               },
                             );
                           },
